@@ -37406,7 +37406,7 @@ module.exports = async function validatePrTitle(
 ) {
   if (!types) types = defaultTypes;
 
-  const {parserOpts} = await conventionalCommitsConfig();
+  const { parserOpts } = await conventionalCommitsConfig();
   if (headerPattern) {
     parserOpts.headerPattern = headerPattern;
   }
@@ -37437,6 +37437,16 @@ module.exports = async function validatePrTitle(
     return disallowScopes && disallowScopes.includes(s);
   }
 
+  function isUnknownType(type) {
+    for (type of types) {
+      const regex = new RegExp(type);
+      if (regex.test(result.type)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   if (!result.type) {
     raiseError(
       `No release type found in pull request title "${prTitle}". Add a prefix to indicate what kind of release this pull request corresponds to. For reference, see https://www.conventionalcommits.org/\n\n${printAvailableTypes()}`
@@ -37447,10 +37457,10 @@ module.exports = async function validatePrTitle(
     raiseError(`No subject found in pull request title "${prTitle}".`);
   }
 
-  if (!types.includes(result.type)) {
+  if (isUnknownType(result.type)) {
     raiseError(
       `Unknown release type "${
-        result.type
+      result.type
       }" found in pull request title "${prTitle}". \n\n${printAvailableTypes()}`
     );
   }
@@ -37471,7 +37481,7 @@ module.exports = async function validatePrTitle(
   if (scopes && unknownScopes.length > 0) {
     raiseError(
       `Unknown ${
-        unknownScopes.length > 1 ? 'scopes' : 'scope'
+      unknownScopes.length > 1 ? 'scopes' : 'scope'
       } "${unknownScopes.join(
         ','
       )}" found in pull request title "${prTitle}". Use one of the available scopes: ${scopes.join(
@@ -37486,7 +37496,7 @@ module.exports = async function validatePrTitle(
   if (disallowScopes && disallowedScopes.length > 0) {
     raiseError(
       `Disallowed ${
-        disallowedScopes.length === 1 ? 'scope was' : 'scopes were'
+      disallowedScopes.length === 1 ? 'scope was' : 'scopes were'
       } found: ${disallowScopes.join(', ')}`
     );
   }
